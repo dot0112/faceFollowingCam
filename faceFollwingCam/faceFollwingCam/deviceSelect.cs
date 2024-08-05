@@ -1,58 +1,52 @@
-using System;
-using System.Collections.Generic;
-using System.Management;
-using System.Windows.Forms;
+using DirectShowLib;
 
 namespace faceFollwingCam
 {
-	public partial class deviceSelect : Form
-	{
-		public List<string> dName, dID, dDes, dMan;
+    public partial class deviceSelect : Form
+    {
+        DsDevice[] systemCameras;
 
-		public deviceSelect()
-		{
-			InitializeComponent();
 
-			dName = new List<string>();
-			dID = new List<string>();
-			dDes = new List<string>();
-			dMan = new List<string>();
+        public deviceSelect()
+        {
+            InitializeComponent();
+            SearchCameraDevices();
 
-			SearchCameraDevices();
+            if (systemCameras != null)
+            {
+                foreach (DsDevice camera in systemCameras)
+                {
+                    deviceList.Items.Add(camera.Name);
+                }
+            }
+        }
 
-			if (dName != null)
-			{
-				foreach (var name in dName)
-				{
-					deviceList.Items.Add(name);
-				}
-			}
-		}
+        public void SearchCameraDevices()
+        {
+            try
+            {
+                systemCameras = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.StackTrace);
+            }
+        }
 
-		public void SearchCameraDevices()
-		{
-			try
-			{
-				string query = "SELECT * FROM Win32_PnPEntity WHERE Description LIKE '%Camera%' OR Description LIKE '%Imaging Device%'";
-				ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (deviceList.SelectedItem != null)
+                MessageBox.Show(deviceList.SelectedItem.ToString());
+        }
 
-				foreach (ManagementObject device in searcher.Get())
-				{
-					dName.Add(device["Name"]?.ToString());
-					dID.Add(device["DeviceID"]?.ToString());
-					dDes.Add(device["Description"]?.ToString());
-					dMan.Add(device["Manufacturer"]?.ToString());
-				}
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.StackTrace);
-			}
-		}
+        private void deviceList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = (int)deviceList.SelectedIndex;
+            DsDevice device = systemCameras[index];
 
-		private void button1_Click(object sender, EventArgs e)
-		{
-				MessageBox.Show(deviceList.SelectedItems.ToString());
-		}
-	}
+            sName.Text = device.Name;
+            sID.Text = device.ClassID.ToString();
+            sPath.Text = device.DevicePath.Substring(0, 40) + "...";
+        }
+    }
 }
