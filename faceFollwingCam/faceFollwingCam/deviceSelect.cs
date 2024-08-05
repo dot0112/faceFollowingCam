@@ -2,12 +2,12 @@ using DirectShowLib;
 
 namespace faceFollwingCam
 {
-    public partial class deviceSelect : Form
+    public partial class DeviceSelect : Form
     {
         DsDevice[] systemCameras;
 
 
-        public deviceSelect()
+        public DeviceSelect()
         {
             InitializeComponent();
             SearchCameraDevices();
@@ -36,17 +36,33 @@ namespace faceFollwingCam
         private void button1_Click(object sender, EventArgs e)
         {
             if (deviceList.SelectedItem != null)
-                MessageBox.Show(deviceList.SelectedItem.ToString());
+            {
+                Main mainForm = new Main(deviceList.SelectedItem.ToString());
+                mainForm.Show();
+                this.Hide();
+                mainForm.FormClosed += (s, args) => this.Close();
+            }
+
         }
 
         private void deviceList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int index = (int)deviceList.SelectedIndex;
-            DsDevice device = systemCameras[index];
+            try
+            {
+                if(deviceList.SelectedIndex != -1 && deviceList.SelectedIndex < systemCameras.Length)
+                {
+                    int index = (int)deviceList.SelectedIndex;
+                    DsDevice device = systemCameras[index];
 
-            sName.Text = device.Name;
-            sID.Text = device.ClassID.ToString();
-            sPath.Text = device.DevicePath.Substring(0, 40) + "...";
+                    sName.Text = device.Name;
+                    sID.Text = device.ClassID.ToString();
+                    sPath.Text = device.DevicePath.Substring(0, 40) + "...";
+                }
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                MessageBox.Show(ex.StackTrace);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace faceFollwingCam
 {
-	partial class deviceSelect
+	partial class DeviceSelect
 	{
 		/// <summary>
 		///  Required designer variable.
