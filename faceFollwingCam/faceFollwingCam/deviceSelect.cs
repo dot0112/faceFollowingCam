@@ -37,10 +37,10 @@ namespace faceFollwingCam
         {
             if (deviceList.SelectedItem != null)
             {
-                Main mainForm = new Main(deviceList.SelectedItem.ToString());
-                mainForm.Show();
+                CameraScreen cameraScreenForm = new CameraScreen(deviceList.SelectedIndex);
+                cameraScreenForm.Show();
                 this.Hide();
-                mainForm.FormClosed += (s, args) => this.Close();
+                cameraScreenForm.FormClosed += (s, args) => this.Close();
             }
 
         }
