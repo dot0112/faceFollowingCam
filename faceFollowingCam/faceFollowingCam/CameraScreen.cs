@@ -16,6 +16,7 @@ namespace faceFollwingCam
     {
         private VideoCapture capture;
         private Mat frame;
+        private Rect[] faces = new Rect[0];
 
         public CameraScreen(int CameraNumber)
         {
@@ -34,7 +35,6 @@ namespace faceFollwingCam
             if (capture.IsOpened())
             {
                 capture.Read(frame);
-                //FaceDetectModel.Prediction(frame);
                 Bitmap bitmap = MatToBitmap(frame);
                 pictureBox1.Image = bitmap;
             }
@@ -98,7 +98,14 @@ namespace faceFollwingCam
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            pictureBox2.Image = pictureBox1.Image;
+            var faces = FaceDetectModel.Prediction(frame);
+            foreach (var face in faces)
+            {
+                // 검출된 얼굴 주위에 사각형 그리기
+                Cv2.Rectangle(frame, face, Scalar.Red, 2);
+            }
+            Bitmap bitmap = MatToBitmap(frame);
+            pictureBox2.Image = bitmap;
         }
     }
 }
