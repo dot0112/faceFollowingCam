@@ -17,20 +17,23 @@ namespace faceFollwingCam
         private VideoCapture capture;
         private Mat frame;
         private Rect[] faces = new Rect[0];
+        private Rect prev_face = new Rect();
+        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+        private bool faceMode = false;
+        private int width, height;
 
         public CameraScreen(int CameraNumber)
         {
             InitializeComponent();
             capture = new VideoCapture(CameraNumber);
-            form_Resize(capture);
+            form_Resize();
             frame = new Mat();
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             timer.Interval = 33;
-            timer.Tick += new EventHandler(timer_Tick);
+            timer.Tick += new EventHandler(timer_Tick_Main);
             timer.Start();
         }
 
-        private void timer_Tick(object sender, EventArgs e)
+        private void timer_Tick_Main(object sender, EventArgs e)
         {
             if (capture.IsOpened())
             {
@@ -78,11 +81,12 @@ namespace faceFollwingCam
             return bitmap;
         }
 
-        private void form_Resize(VideoCapture capture)
+        private void form_Resize()
         {
-            this.Size = new System.Drawing.Size(capture.FrameWidth * 2, capture.FrameHeight);
-            pictureBox1.Size = this.Size / 2;
-            pictureBox2.Size = pictureBox1.Size;
+            width = capture.FrameWidth; height = capture.FrameHeight;
+            this.Size = new System.Drawing.Size(width, height);
+            pictureBox1.Size = this.Size;
+            pictureBox2.Size = new System.Drawing.Size(0, 0);
             pictureBox2.Left = pictureBox1.Right;
             pictureBox2.Top = pictureBox1.Top;
         }
@@ -98,14 +102,74 @@ namespace faceFollwingCam
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            var faces = FaceDetectModel.Prediction(frame);
-            foreach (var face in faces)
+            if (!faceMode)
             {
-                // 검출된 얼굴 주위에 사각형 그리기
-                Cv2.Rectangle(frame, face, Scalar.Red, 2);
+                this.Size = new System.Drawing.Size(width + height, height);
+                pictureBox2.Size = new System.Drawing.Size(height, height);
+                timer.Tick += timer_Tick_Face;
             }
-            Bitmap bitmap = MatToBitmap(frame);
-            pictureBox2.Image = bitmap;
+            else
+            {
+                this.Size = new System.Drawing.Size(width, height);
+                pictureBox2.Size = new System.Drawing.Size(0, 0);
+                timer.Tick += timer_Tick_Face;
+            }
+            faceMode = !faceMode;
+        }
+
+        private const int FACE_MARGIN = 25;
+        private const int CROP_EXTRA = 50;
+
+        private void timer_Tick_Face(object sender, EventArgs e)
+        {
+            if (frame == null) return;
+
+            var faces = FaceDetectModel.Prediction(frame);
+            Rect temp = prev_face;
+
+            if (faces.Length > 0)
+            {
+                temp = (faces.Length > 1) ? FindClosestFace(faces, prev_face) : faces[0];
+            }
+
+            Rect cropRect = CalculateCropRectangle(temp, frame.Width, frame.Height);
+
+            try
+            {
+                using (Mat crop_frame = frame.SubMat(cropRect))
+                {
+                    Mat resized = crop_frame.Resize(new OpenCvSharp.Size(height, height));
+                    pictureBox2.Image = MatToBitmap(resized);
+                }
+            }
+            catch (OpenCvSharpException ex)
+            {
+                Console.WriteLine($"Error cropping image: {ex.Message}");
+            }
+
+            prev_face = temp;
+        }
+
+        private Rect FindClosestFace(Rect[] faces, Rect prevFace)
+        {
+            return faces.OrderBy(face =>
+                Math.Sqrt(Math.Pow(prevFace.X - face.X, 2) + Math.Pow(prevFace.Y - face.Y, 2))
+            ).First();
+        }
+
+        private Rect CalculateCropRectangle(Rect face, int frameWidth, int frameHeight)
+        {
+            int x = Math.Max(0, face.X - FACE_MARGIN);
+            int y = Math.Max(0, face.Y - FACE_MARGIN);
+            int width = Math.Min(frameWidth - x, face.Width + CROP_EXTRA);
+            int height = Math.Min(frameHeight - y, face.Height + CROP_EXTRA);
+
+            return new Rect(x, y, width, height);
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
