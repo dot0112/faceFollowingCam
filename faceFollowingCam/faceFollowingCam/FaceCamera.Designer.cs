@@ -1,6 +1,6 @@
-﻿namespace faceFollwingCam
+﻿namespace faceFollowingCam
 {
-    partial class CameraScreen
+    partial class FaceCamera
     {
         /// <summary>
         /// Required designer variable.
@@ -42,15 +42,14 @@
             pictureBox.TabStop = false;
             pictureBox.Click += pictureBox_Click;
             // 
-            // CameraScreen
+            // FaceCamera
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(pictureBox);
-            Name = "CameraScreen";
-            Text = "CameraScreen";
-            FormClosing += CameraScreen_FormClosing;
+            Name = "FaceCamera";
+            Text = "FaceCamera";
             ((System.ComponentModel.ISupportInitialize)pictureBox).EndInit();
             ResumeLayout(false);
         }

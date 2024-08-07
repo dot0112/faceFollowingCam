@@ -37,7 +37,7 @@ namespace faceFollwingCam
         {
             if (deviceList.SelectedItem != null)
             {
-                CameraScreen cameraScreenForm = new CameraScreen(deviceList.SelectedIndex);
+                CameraScreen cameraScreenForm = new CameraScreen(deviceList.SelectedIndex, deviceList.SelectedItem.ToString());
                 cameraScreenForm.Show();
                 this.Hide();
                 cameraScreenForm.FormClosed += (s, args) => this.Close();
@@ -49,7 +49,7 @@ namespace faceFollwingCam
         {
             try
             {
-                if(deviceList.SelectedIndex != -1 && deviceList.SelectedIndex < systemCameras.Length)
+                if (deviceList.SelectedIndex != -1 && deviceList.SelectedIndex < systemCameras.Length)
                 {
                     int index = (int)deviceList.SelectedIndex;
                     DsDevice device = systemCameras[index];
