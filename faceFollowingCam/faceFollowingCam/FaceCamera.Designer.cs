@@ -29,18 +29,53 @@
         private void InitializeComponent()
         {
             pictureBox = new PictureBox();
+            menuStrip1 = new MenuStrip();
+            recordingToolMenuItem = new ToolStripMenuItem();
+            recordingStatusToolMenuItem = new ToolStripMenuItem();
+            recordingSettingToolMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)pictureBox).BeginInit();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // pictureBox
             // 
             pictureBox.Dock = DockStyle.Left;
-            pictureBox.Location = new Point(0, 0);
+            pictureBox.Location = new Point(0, 24);
             pictureBox.Name = "pictureBox";
-            pictureBox.Size = new Size(100, 450);
+            pictureBox.Size = new Size(100, 426);
             pictureBox.TabIndex = 0;
             pictureBox.TabStop = false;
             pictureBox.Click += pictureBox_Click;
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.Items.AddRange(new ToolStripItem[] { recordingToolMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(800, 24);
+            menuStrip1.TabIndex = 1;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // recordingToolMenuItem
+            // 
+            recordingToolMenuItem.DropDownItems.AddRange(new ToolStripItem[] { recordingStatusToolMenuItem, recordingSettingToolMenuItem });
+            recordingToolMenuItem.Name = "recordingToolMenuItem";
+            recordingToolMenuItem.Size = new Size(73, 20);
+            recordingToolMenuItem.Text = "Recording";
+            // 
+            // recordingStatusToolMenuItem
+            // 
+            recordingStatusToolMenuItem.Name = "recordingStatusToolMenuItem";
+            recordingStatusToolMenuItem.Size = new Size(180, 22);
+            recordingStatusToolMenuItem.Text = "Start Recording";
+            recordingStatusToolMenuItem.Click += startRecordingToolStripMenuItem_Click;
+            // 
+            // recordingSettingToolMenuItem
+            // 
+            recordingSettingToolMenuItem.Name = "recordingSettingToolMenuItem";
+            recordingSettingToolMenuItem.Size = new Size(180, 22);
+            recordingSettingToolMenuItem.Text = "Setting";
+            recordingSettingToolMenuItem.Click += settingToolStripMenuItem_Click;
             // 
             // FaceCamera
             // 
@@ -48,14 +83,23 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(pictureBox);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             Name = "FaceCamera";
             Text = "FaceCamera";
             ((System.ComponentModel.ISupportInitialize)pictureBox).EndInit();
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private PictureBox pictureBox;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem recordingToolMenuItem;
+        private ToolStripMenuItem recordingStatusToolMenuItem;
+        private ToolStripMenuItem recordingSettingToolMenuItem;
     }
 }

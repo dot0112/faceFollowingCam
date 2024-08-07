@@ -16,13 +16,23 @@ namespace faceFollwingCam
     public partial class CameraScreen : Form
     {
         private VideoCapture capture;
-        public static Mat frame;
+        private static Mat frame;
         private Rect[] faces = new Rect[0];
         private Rect prev_face = new Rect();
-        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-        private bool faceMode = false;
+        private static System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
+        private bool faceMode = false, recording = false;
         private int width, height;
         public event EventHandler<Mat> FrameUpdated;
+
+        public static Mat Frame
+        {
+            get => frame;
+        }
+
+        public static System.Windows.Forms.Timer timer
+        {
+            get => _timer;
+        }
 
         public CameraScreen(int CameraNumber, string CameraName = "Camera")
         {
@@ -49,7 +59,8 @@ namespace faceFollwingCam
         private void form_Resize()
         {
             width = capture.FrameWidth; height = capture.FrameHeight;
-            this.Size = new System.Drawing.Size(width, height);
+            this.Size = new System.Drawing.Size(width, height + 24);
+            menuStrip.Size = new System.Drawing.Size(width, menuStrip.Height);
             pictureBox.Size = this.Size;
         }
 
@@ -67,10 +78,27 @@ namespace faceFollwingCam
             if (!faceMode)
             {
                 faceMode = true;
-                FaceCamera faceCameraForm = new FaceCamera(timer);
+                FaceCamera faceCameraForm = new FaceCamera();
                 faceCameraForm.Show();
-                faceCameraForm.FormClosed += (s, args) => faceMode = false ;
+                faceCameraForm.FormClosed += (s, args) => faceMode = false;
             }
+        }
+
+        private void recordingSettingToolMenuItem_Click(object sender, EventArgs e)
+        {
+            RecordingSetting recordingSettingForm = new RecordingSetting();
+            recordingSettingForm.Show();
+        }
+
+        private async void recordingStatusToolMenuItem_Click(object sender, EventArgs e)
+        {
+            recording = !recording;
+            recordingStatusToolMenuItem.Text = !recording ? "Start Recording" : "End Recording";
+            if (recording) await RecordingFunc.StartRecordingAsync(() =>
+            {
+                return frame.Clone();
+            });
+            else RecordingFunc.StopRecording();
         }
     }
 }

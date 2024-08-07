@@ -16,19 +16,18 @@ namespace faceFollowingCam
 {
     public partial class FaceCamera : Form
     {
-        private Mat frame = CameraScreen.frame;
+        private Mat frame = CameraScreen.Frame;
+        Mat frame_blur = new Mat(), frame_threshold = new Mat(), resized, crop_frame;
         private Rect[] faces = new Rect[0];
         private Rect prev_face;
-        System.Windows.Forms.Timer timer;
+        private System.Windows.Forms.Timer timer = CameraScreen.timer;
+        private bool recording = false;
         int width, height, cam_width, cam_height;
-        private const int FACE_MARGIN = 25;
-        private const int CROP_EXTRA = 50;
         bool showPostProcessing = false;
 
-        public FaceCamera(System.Windows.Forms.Timer timer)
+        public FaceCamera()
         {
             InitializeComponent();
-            this.timer = timer;
             form_Resize();
             timer.Tick += new EventHandler(timer_Tick);
         }
@@ -39,63 +38,20 @@ namespace faceFollowingCam
             if (frame != null)
             {
                 width = frame.Width; height = frame.Height;
-                cam_width = width / 2; cam_height = height / 2;
-                this.Size = new System.Drawing.Size(width, height);
+                cam_width = (width * 7) / 10; cam_height = (height * 7) / 10;
+                this.Size = new System.Drawing.Size(width, height + 24);
                 pictureBox.Size = this.Size;
                 prev_face = new Rect(0, 0, width, height);
             }
-        }
-
-        private Bitmap MatToBitmap(Mat mat)
-        {
-            if (mat.Empty())
-                return null;
-
-            int width = mat.Cols;
-            int height = mat.Rows;
-            Bitmap bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-            Rectangle rect = new Rectangle(0, 0, width, height);
-            System.Drawing.Imaging.BitmapData bmpData = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-
-            IntPtr ptr = bmpData.Scan0;
-
-            if (mat.Channels() == 3)
-            {
-                int totalBytes = width * height * 3;
-                byte[] rgbValues = new byte[totalBytes];
-                Marshal.Copy(mat.Data, rgbValues, 0, totalBytes);
-                Marshal.Copy(rgbValues, 0, ptr, totalBytes);
-            }
-            else if (mat.Channels() == 1)
-            {
-                Mat bgrMat = new Mat();
-                Cv2.CvtColor(mat, bgrMat, ColorConversionCodes.GRAY2BGR);
-                int totalBytes = width * height * 3;
-                byte[] rgbValues = new byte[totalBytes];
-                Marshal.Copy(bgrMat.Data, rgbValues, 0, totalBytes);
-                Marshal.Copy(rgbValues, 0, ptr, totalBytes);
-            }
-            else
-            {
-                throw new ArgumentException("Unsupported number of channels in Mat");
-            }
-
-            bitmap.UnlockBits(bmpData);
-            return bitmap;
         }
 
         private void timer_Tick(object sender, EventArgs e)
         {
             if (frame == null) return;
 
-            Mat frame_blur = new Mat(), frame_threshold = new Mat();
+
             Cv2.GaussianBlur(frame, frame_blur, new OpenCvSharp.Size(5, 5), sigmaX: 0, sigmaY: 0);
             Cv2.Threshold(frame_blur, frame_threshold, 127, 255, ThresholdTypes.Binary);
-            if (showPostProcessing)
-            {
-                pictureBox.Image = MatToBitmap(frame_threshold);
-                return;
-            }
 
             var faces = FaceDetectModel.Prediction(frame_blur);
             Rect temp = prev_face;
@@ -116,13 +72,12 @@ namespace faceFollowingCam
                 return;
             }
 
-
             try
             {
-                using (Mat crop_frame = frame.SubMat(cropRect))
+                using (crop_frame = frame.SubMat(cropRect))
                 {
-                    Mat resized = crop_frame.Resize(new OpenCvSharp.Size(width, height));
-                    pictureBox.Image = MatToBitmap(resized);
+                    resized = crop_frame.Resize(new OpenCvSharp.Size(width, height));
+                    pictureBox.Image = showPostProcessing ? PreprocessingFunc.MatToBitmap(frame_threshold) : PreprocessingFunc.MatToBitmap(resized);
                 }
             }
             catch (OpenCvSharpException ex)
@@ -169,6 +124,32 @@ namespace faceFollowingCam
         private void pictureBox_Click(object sender, EventArgs e)
         {
             showPostProcessing = !showPostProcessing;
+        }
+
+        private async void startRecordingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            recording = !recording;
+            recordingStatusToolMenuItem.Text = !recording ? "Start Recording" : "End Recording";
+            if (recording)
+            {
+                await RecordingFunc.StartRecordingAsync(() =>
+                {
+                    if (showPostProcessing)
+                        return frame_threshold.Clone();
+                    else
+                        return resized.Clone();
+                });
+            }
+            else
+            {
+                RecordingFunc.StopRecording();
+            }
+        }
+
+        private void settingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RecordingSetting recordingSettingForm = new RecordingSetting();
+            recordingSettingForm.Show();
         }
     }
 }
