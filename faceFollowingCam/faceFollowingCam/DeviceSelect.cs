@@ -1,4 +1,5 @@
 using DirectShowLib;
+using faceFollowingCam;
 
 namespace faceFollwingCam
 {
@@ -62,6 +63,42 @@ namespace faceFollwingCam
             catch (IndexOutOfRangeException ex)
             {
                 MessageBox.Show(ex.StackTrace);
+            }
+        }
+
+        private void searchVideoLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            string validExtenstion = ".avi.mov.qt.mkv.webm.mp4.mpg.mpeg.m2v.m4v.wmv.ogv.ogg.mxf";
+            openFileDialog.InitialDirectory = "C:\\";
+            openFileDialog.FileName = "";
+            openFileDialog.Filter =
+                "All File|*.*|" +
+                "AVI File (*.avi)|*.avi|" +
+                "MOV File (*.mov)|*.mov|" +
+                "QT File (*.qt)|*.qt|" +
+                "MKV File (*.mkv)|*.mkv|" +
+                "WEBM File (*.webm)|*.webm|" +
+                "MP4 File (*.mp4)|*.mp4|" +
+                "MPG File (*.mpg)|*.mpg|" +
+                "MPEG File (*.mpeg)|*.mpeg|" +
+                "M2V File (*.m2v)|*.m2v|" +
+                "M4V File (*.m4v)|*.m4v|" +
+                "WMV File (*.wmv)|*.wmv|" +
+                "OGV File (*.ogv)|*.ogv|" +
+                "OGG File (*.ogg)|*.ogg|" +
+                "MXF File (*.mxf)|*.mxf";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string videoName = openFileDialog.FileName;
+                string extension = videoName.Substring(videoName.LastIndexOf("."));
+                if (validExtenstion.IndexOf(extension) == -1) { 
+                    MessageBox.Show("Invalid File Extension","Error",MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                VideoScreen videoScreenForm = new VideoScreen(videoName);
+                videoScreenForm.Show();
+                this.Hide();
+                videoScreenForm.FormClosed += (s, args) => this.Close();
             }
         }
     }

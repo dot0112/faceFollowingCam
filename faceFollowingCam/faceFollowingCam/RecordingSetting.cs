@@ -38,7 +38,7 @@ namespace faceFollowingCam
             string pattern = "[" + Regex.Escape(new string(invalidChars)) + "]";
             if (Regex.IsMatch(fileName, pattern))
             {
-                MessageBox.Show("Can't Change File Name", "Invalid File Name");
+                MessageBox.Show("Invalid File Name","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
             }
             RecordingEnv.Name = fileName;

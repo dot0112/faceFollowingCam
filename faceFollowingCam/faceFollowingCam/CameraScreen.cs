@@ -16,9 +16,7 @@ namespace faceFollwingCam
     public partial class CameraScreen : Form
     {
         private VideoCapture capture;
-        private static Mat frame;
-        private Rect[] faces = new Rect[0];
-        private Rect prev_face = new Rect();
+        private static Mat frame = new Mat();
         private static System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
         private bool faceMode = false, recording = false;
         private int width, height;
@@ -40,7 +38,6 @@ namespace faceFollwingCam
             this.Text = "Screen - " + CameraName;
             capture = new VideoCapture(CameraNumber);
             form_Resize();
-            frame = new Mat();
             timer.Interval = 33;
             timer.Tick += new EventHandler(timer_Tick);
             timer.Start();
@@ -62,6 +59,7 @@ namespace faceFollwingCam
             this.Size = new System.Drawing.Size(width, height + 24);
             menuStrip.Size = new System.Drawing.Size(width, menuStrip.Height);
             pictureBox.Size = this.Size;
+            pictureBox.Top = menuStrip.Bottom;
         }
 
         private void CameraScreen_FormClosing(object sender, FormClosingEventArgs e)

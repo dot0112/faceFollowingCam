@@ -37,6 +37,8 @@
             sName = new Label();
             sID = new Label();
             sPath = new Label();
+            searchVideoLabel = new LinkLabel();
+            openFileDialog = new OpenFileDialog();
             SuspendLayout();
             // 
             // selectBtn
@@ -123,12 +125,29 @@
             sPath.Size = new Size(0, 15);
             sPath.TabIndex = 8;
             // 
-            // deviceSelect
+            // searchVideoLabel
+            // 
+            searchVideoLabel.AutoSize = true;
+            searchVideoLabel.BackColor = SystemColors.Window;
+            searchVideoLabel.Location = new Point(148, 290);
+            searchVideoLabel.Name = "searchVideoLabel";
+            searchVideoLabel.Size = new Size(201, 15);
+            searchVideoLabel.TabIndex = 9;
+            searchVideoLabel.TabStop = true;
+            searchVideoLabel.Text = "Search for videos in your directories";
+            searchVideoLabel.LinkClicked += searchVideoLabel_LinkClicked;
+            // 
+            // openFileDialog
+            // 
+            openFileDialog.FileName = "openFileDialog1";
+            // 
+            // DeviceSelect
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoSize = true;
             ClientSize = new Size(371, 453);
+            Controls.Add(searchVideoLabel);
             Controls.Add(sPath);
             Controls.Add(sID);
             Controls.Add(sName);
@@ -139,7 +158,9 @@
             Controls.Add(mainLabel);
             Controls.Add(selectBtn);
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            Name = "deviceSelect";
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "DeviceSelect";
             Text = "Select Device";
             ResumeLayout(false);
             PerformLayout();
@@ -156,5 +177,7 @@
         private Label sName;
         private Label sID;
         private Label sPath;
+        private LinkLabel searchVideoLabel;
+        private OpenFileDialog openFileDialog;
     }
 }

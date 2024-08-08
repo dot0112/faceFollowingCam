@@ -17,7 +17,7 @@ namespace faceFollowingCam
     public partial class FaceCamera : Form
     {
         private Mat frame = CameraScreen.Frame;
-        Mat frame_blur = new Mat(), frame_threshold = new Mat(), resized, crop_frame;
+        Mat resized, crop_frame;
         private Rect[] faces = new Rect[0];
         private Rect prev_face;
         private System.Windows.Forms.Timer timer = CameraScreen.timer;
@@ -41,6 +41,7 @@ namespace faceFollowingCam
                 cam_width = (width * 7) / 10; cam_height = (height * 7) / 10;
                 this.Size = new System.Drawing.Size(width, height + 24);
                 pictureBox.Size = this.Size;
+                pictureBox.Top = menuStrip.Bottom;
                 prev_face = new Rect(0, 0, width, height);
             }
         }
@@ -49,11 +50,7 @@ namespace faceFollowingCam
         {
             if (frame == null) return;
 
-
-            Cv2.GaussianBlur(frame, frame_blur, new OpenCvSharp.Size(5, 5), sigmaX: 0, sigmaY: 0);
-            Cv2.Threshold(frame_blur, frame_threshold, 127, 255, ThresholdTypes.Binary);
-
-            var faces = FaceDetectModel.Prediction(frame_blur);
+            var faces = FaceDetectModel.Prediction(frame);
             Rect temp = prev_face;
 
             if (faces.Length > 0)
@@ -77,7 +74,7 @@ namespace faceFollowingCam
                 using (crop_frame = frame.SubMat(cropRect))
                 {
                     resized = crop_frame.Resize(new OpenCvSharp.Size(width, height));
-                    pictureBox.Image = showPostProcessing ? PreprocessingFunc.MatToBitmap(frame_threshold) : PreprocessingFunc.MatToBitmap(resized);
+                    pictureBox.Image = showPostProcessing ? PreprocessingFunc.MatToBitmap(FaceDetectModel.Gray_threshold) : PreprocessingFunc.MatToBitmap(resized);
                 }
             }
             catch (OpenCvSharpException ex)
@@ -135,7 +132,7 @@ namespace faceFollowingCam
                 await RecordingFunc.StartRecordingAsync(() =>
                 {
                     if (showPostProcessing)
-                        return frame_threshold.Clone();
+                        return FaceDetectModel.Gray_threshold.Clone();
                     else
                         return resized.Clone();
                 });

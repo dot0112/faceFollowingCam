@@ -66,14 +66,14 @@
             // recordingStatusToolMenuItem
             // 
             recordingStatusToolMenuItem.Name = "recordingStatusToolMenuItem";
-            recordingStatusToolMenuItem.Size = new Size(180, 22);
+            recordingStatusToolMenuItem.Size = new Size(157, 22);
             recordingStatusToolMenuItem.Text = "Start Recording";
             recordingStatusToolMenuItem.Click += recordingStatusToolMenuItem_Click;
             // 
             // recordingSettingToolMenuItem
             // 
             recordingSettingToolMenuItem.Name = "recordingSettingToolMenuItem";
-            recordingSettingToolMenuItem.Size = new Size(180, 22);
+            recordingSettingToolMenuItem.Size = new Size(157, 22);
             recordingSettingToolMenuItem.Text = "Setting";
             recordingSettingToolMenuItem.Click += recordingSettingToolMenuItem_Click;
             // 
@@ -84,7 +84,10 @@
             ClientSize = new Size(800, 450);
             Controls.Add(pictureBox);
             Controls.Add(menuStrip);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MainMenuStrip = menuStrip;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "CameraScreen";
             Text = "CameraScreen";
             FormClosing += CameraScreen_FormClosing;

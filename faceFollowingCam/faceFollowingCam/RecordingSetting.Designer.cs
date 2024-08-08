@@ -39,9 +39,10 @@
             // 
             // SavePathTextBox
             // 
-            SavePathTextBox.Enabled = false;
+            SavePathTextBox.BackColor = SystemColors.Window;
             SavePathTextBox.Location = new Point(81, 12);
             SavePathTextBox.Name = "SavePathTextBox";
+            SavePathTextBox.ReadOnly = true;
             SavePathTextBox.Size = new Size(232, 23);
             SavePathTextBox.TabIndex = 0;
             // 
@@ -101,6 +102,9 @@
             Controls.Add(FileNameTextBox);
             Controls.Add(PathSearchButton);
             Controls.Add(SavePathTextBox);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "RecordingSetting";
             Text = "Setting";
             ResumeLayout(false);
