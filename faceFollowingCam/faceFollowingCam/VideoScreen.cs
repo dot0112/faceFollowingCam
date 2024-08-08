@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,28 +15,42 @@ using Tensorflow;
 
 namespace faceFollowingCam
 {
-    public partial class VideoScreen : Form
+    public partial class VideoScreen : Form, IScreen
     {
-        private VideoCapture capture;
-        private static Mat frame = new Mat();
-        private static System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
         int width, height;
-        bool play = false, prev_status = false;;
+        bool play = false, prev_status = false, faceMode = false;
         public event EventHandler<Mat> FrameUpdated;
 
-        public static Mat Frame
+        private string sourceName;
+        private VideoCapture capture;
+        private Mat frame = new Mat();
+        private System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+
+        public Mat GetFrame()
         {
-            get => frame;
+            return frame;
         }
 
-        public static System.Windows.Forms.Timer timer
+        public System.Windows.Forms.Timer GetTimer()
         {
-            get => _timer;
+            return timer;
+        }
+
+        public VideoCapture GetCapture()
+        {
+            return capture;
+        }
+
+        public string GetSourceName()
+        {
+            return sourceName;
         }
 
         public VideoScreen(string videoName)
         {
             InitializeComponent();
+            sourceName = videoName.Substring(videoName.LastIndexOf('\\') + 1);
+            this.Text = "Screen - " + sourceName;
             capture = new VideoCapture(videoName);
             if (capture.IsOpened())
             {
@@ -93,9 +108,9 @@ namespace faceFollowingCam
 
         private void trackBar_ValueChanged(object sender, EventArgs e)
         {
-            if (capture.IsOpened()&&!play)
+            if (capture.IsOpened() && !play)
             {
-                capture.PosFrames = (int) (trackBar.Value * capture.Fps);
+                capture.PosFrames = (int)(trackBar.Value * capture.Fps);
                 capture.Read(frame);
                 pictureBox.Image = PreprocessingFunc.MatToBitmap(frame);
                 FrameUpdated?.Invoke(this, frame);
@@ -111,6 +126,17 @@ namespace faceFollowingCam
         private void trackBar_MouseUp(object sender, MouseEventArgs e)
         {
             UpdatePlayStatus(prev_status);
+        }
+
+        private void pictureBox_Click(object sender, EventArgs e)
+        {
+            if (!faceMode)
+            {
+                faceMode = true;
+                FaceCamera faceCameraForm = new FaceCamera((IScreen)this);
+                faceCameraForm.Show();
+                faceCameraForm.FormClosed += (s, args) => faceMode = false;
+            }
         }
     }
 }

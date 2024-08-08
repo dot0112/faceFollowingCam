@@ -13,29 +13,42 @@ using OpenCvSharp;
 
 namespace faceFollwingCam
 {
-    public partial class CameraScreen : Form
+    public partial class CameraScreen : Form, IScreen
     {
-        private VideoCapture capture;
-        private static Mat frame = new Mat();
-        private static System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
         private bool faceMode = false, recording = false;
         private int width, height;
         public event EventHandler<Mat> FrameUpdated;
 
-        public static Mat Frame
+        private string sourceName;
+        private VideoCapture capture;
+        private Mat frame = new Mat();
+        private System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+
+        public Mat GetFrame()
         {
-            get => frame;
+            return frame;
         }
 
-        public static System.Windows.Forms.Timer timer
+        public System.Windows.Forms.Timer GetTimer()
         {
-            get => _timer;
+            return timer;
+        }
+
+        public VideoCapture GetCapture()
+        {
+            return capture;
+        }
+
+        public string GetSourceName()
+        {
+            return sourceName;
         }
 
         public CameraScreen(int CameraNumber, string CameraName = "Camera")
         {
             InitializeComponent();
-            this.Text = "Screen - " + CameraName;
+            sourceName = CameraName;
+            this.Text = "Screen - " + sourceName;
             capture = new VideoCapture(CameraNumber);
             form_Resize();
             timer.Interval = 33;
@@ -76,7 +89,7 @@ namespace faceFollwingCam
             if (!faceMode)
             {
                 faceMode = true;
-                FaceCamera faceCameraForm = new FaceCamera();
+                FaceCamera faceCameraForm = new FaceCamera((IScreen)this);
                 faceCameraForm.Show();
                 faceCameraForm.FormClosed += (s, args) => faceMode = false;
             }

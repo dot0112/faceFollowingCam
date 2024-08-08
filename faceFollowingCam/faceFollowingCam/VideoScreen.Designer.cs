@@ -43,6 +43,7 @@
             pictureBox.Size = new Size(800, 50);
             pictureBox.TabIndex = 0;
             pictureBox.TabStop = false;
+            pictureBox.Click += pictureBox_Click;
             // 
             // trackBar
             // 

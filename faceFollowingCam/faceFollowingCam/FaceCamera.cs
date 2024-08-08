@@ -16,18 +16,23 @@ namespace faceFollowingCam
 {
     public partial class FaceCamera : Form
     {
-        private Mat frame = CameraScreen.Frame;
+        private IScreen screen;
+        private Mat frame;
         Mat resized, crop_frame;
         private Rect[] faces = new Rect[0];
         private Rect prev_face;
-        private System.Windows.Forms.Timer timer = CameraScreen.timer;
+        private System.Windows.Forms.Timer timer;
         private bool recording = false;
         int width, height, cam_width, cam_height;
         bool showPostProcessing = false;
 
-        public FaceCamera()
+        public FaceCamera(IScreen s)
         {
             InitializeComponent();
+            screen = s;
+            this.Text = "Face Mode - " +s.GetSourceName();
+            timer = screen.GetTimer();
+            frame = screen.GetFrame();
             form_Resize();
             timer.Tick += new EventHandler(timer_Tick);
         }
